@@ -7,6 +7,7 @@ import { GlobalStyle } from "@/styles/GlobalStyle";
 import { darkTheme, lightTheme } from "@/styles/theme";
 import { Moon, Sun } from "lucide-react";
 import { BtnChangeTheme } from "./style";
+import { Toaster } from "react-hot-toast";
 
 interface ThemeProviderProps {
   children: ReactNode;
@@ -35,6 +36,7 @@ export const CustomThemeProvider = ({
         {theme === "light" ? <Moon /> : <Sun color="#ffff" />}
       </BtnChangeTheme>
       {children}
+      <Toaster position="bottom-center" />
     </ThemeProvider>
   );
 };
