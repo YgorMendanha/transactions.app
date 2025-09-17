@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   Page,
@@ -18,6 +18,7 @@ import { Button } from "@/ui/Button";
 import toast from "react-hot-toast";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import { AuthValidation } from "@/ultis/auth";
 
 type FormData = {
   email: string;
@@ -40,6 +41,14 @@ export default function LoginCard() {
       remember: true,
     },
   });
+
+  const authToken = Cookies.get("token");
+  useEffect(() => {
+    const auth = AuthValidation(authToken);
+    if (auth) {
+      router.push("/dashboard");
+    }
+  }, [authToken]);
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);

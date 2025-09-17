@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const BtnChangeTheme = styled.button`
   position: fixed;
-  top: 20px;
+  top: 10px;
   right: 20px;
 
   display: flex;
