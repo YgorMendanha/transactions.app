@@ -1,18 +1,281 @@
-import styled from "styled-components";
+"use client";
 
-const HeaderContainer = styled.div`
-  height: 60px;
+import styled from "styled-components";
+import { SelectDate } from "./filter/date";
+import { Tooltip } from "@/ui/Tooltip";
+import { useEffect, useState, useCallback } from "react";
+import dayjs from "dayjs";
+import { Button } from "@/ui/Button";
+import { AccountFilter } from "./filter/account";
+import { IndustryFilter } from "./filter/industry";
+import { StateFilter } from "./filter/state";
+import { useSearchParams, useRouter } from "next/navigation";
+import { TypeFilter } from "./filter/type";
+
+const HeaderContainer = styled.header`
   width: 100%;
   background-color: ${({ theme }) => theme.colors.surface};
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
   color: ${({ theme }) => theme.colors.text};
+  padding: 12px 20px;
+  padding-right: 70px;
+  box-sizing: border-box;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
 `;
 
-export const Header = () => (
-  <HeaderContainer>
-    <div>Dashboard</div>
-  </HeaderContainer>
-);
+const TopRow = styled.div`
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
+  @media (max-width: 720px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+`;
+
+const Title = styled.h1`
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+`;
+
+const Controls = styled.div`
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+
+  @media (max-width: 720px) {
+    justify-content: space-between;
+  }
+`;
+
+const TagsRow = styled.div`
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  overflow-x: auto;
+
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => theme.colors.border};
+    border-radius: 6px;
+  }
+`;
+
+const TagFilter = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: ${({ theme }) => `${theme.colors.primary}22`};
+  color: ${({ theme }) => theme.colors.primary};
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+  flex-shrink: 0;
+`;
+
+const TagType = styled.span`
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: ${({ theme }) => `${theme.colors.primary}33`};
+  color: ${({ theme }) => theme.colors.primary};
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 700;
+`;
+
+const TagClose = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1;
+`;
+
+const ControlGroup = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+`;
+
+type TagItem = {
+  type: "account" | "industry" | "state" | "type";
+  value: string;
+};
+
+export const Header = ({
+  filterOptions,
+}: {
+  filterOptions: {
+    account: string[];
+    industry: string[];
+    state: string[];
+    transaction_type: string[];
+  };
+}) => {
+  const [labelCalendar, setLabelCalendar] = useState("Período Total");
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const dateIni = searchParams.get("start") ?? "";
+  const dateFim = searchParams.get("end") ?? "";
+
+  const accountFilter = searchParams.getAll("account");
+  const industryFilter = searchParams.getAll("industry");
+  const stateFilter = searchParams.getAll("state");
+  const typeFilter = searchParams.getAll("type");
+
+  const combinedTags: TagItem[] = [
+    ...accountFilter.map((v) => ({ type: "account" as const, value: v })),
+    ...industryFilter.map((v) => ({ type: "industry" as const, value: v })),
+    ...stateFilter.map((v) => ({ type: "state" as const, value: v })),
+    ...typeFilter.map((v) => ({ type: "type" as const, value: v })),
+  ];
+
+  useEffect(() => {
+    if (!dateIni && !dateFim) {
+      setLabelCalendar("Período Total");
+      return;
+    }
+
+    const start = dayjs(dateIni);
+    const end = dayjs(dateFim);
+
+    const isSameYear =
+      start.isValid() &&
+      end.isValid() &&
+      start.isSame(dayjs().startOf("year"), "day") &&
+      end.isSame(dayjs().endOf("year"), "day");
+
+    if (isSameYear) {
+      setLabelCalendar("Este Ano");
+      return;
+    }
+
+    const lastMonth = dayjs().subtract(1, "month");
+    const isLastMonth =
+      start.isValid() &&
+      end.isValid() &&
+      start.isSame(lastMonth.startOf("month"), "day") &&
+      end.isSame(lastMonth.endOf("month"), "day");
+
+    if (isLastMonth) {
+      setLabelCalendar("Mês Passado");
+      return;
+    }
+
+    const isSameMonth =
+      start.isValid() &&
+      end.isValid() &&
+      start.isSame(dayjs().startOf("month"), "day") &&
+      end.isSame(dayjs().endOf("month"), "day");
+
+    if (isSameMonth) {
+      setLabelCalendar("Mês Atual");
+      return;
+    }
+
+    const isSameWeek =
+      start.isValid() &&
+      end.isValid() &&
+      start.isSame(dayjs().weekday(0), "day") &&
+      end.isSame(dayjs().weekday(6), "day");
+
+    if (isSameWeek) {
+      setLabelCalendar("Semana Atual");
+      return;
+    }
+
+    const today =
+      start.isValid() &&
+      end.isValid() &&
+      start.isSame(dayjs(), "day") &&
+      end.isSame(dayjs(), "day");
+
+    if (today) {
+      setLabelCalendar("Hoje");
+      return;
+    }
+
+    if (start.isValid() && end.isValid()) {
+      setLabelCalendar(`${start.format("DD/MM")} - ${end.format("DD/MM")}`);
+    } else {
+      setLabelCalendar("Período Total");
+    }
+  }, [dateIni, dateFim]);
+
+  const removeFilter = useCallback(
+    (type: TagItem["type"], value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      const existing = params.getAll(type).filter((v) => v !== value);
+      params.delete(type);
+      existing.forEach((v) => params.append(type, v));
+      const qs = params.toString();
+
+      router.push(`?${qs}`);
+    },
+    [searchParams, router]
+  );
+
+  return (
+    <HeaderContainer>
+      <TopRow>
+        <Title>Dashboard</Title>
+
+        <Controls>
+          <ControlGroup>
+            <Tooltip content={<SelectDate />}>
+              <Button variant="default">{labelCalendar}</Button>
+            </Tooltip>
+
+            <AccountFilter options={filterOptions.account} />
+            <IndustryFilter options={filterOptions.industry} />
+            <StateFilter options={filterOptions.state} />
+            <TypeFilter options={filterOptions.transaction_type} />
+          </ControlGroup>
+        </Controls>
+      </TopRow>
+
+      {/* Tags */}
+      {combinedTags.length > 0 && (
+        <TagsRow aria-label="Filtros aplicados">
+          {combinedTags.map((tag) => (
+            <TagFilter key={`${tag.type}-${tag.value}`}>
+              <TagType>{tag.type}</TagType>
+              <span>{tag.value}</span>
+              <TagClose
+                aria-label={`Remover filtro ${tag.value}`}
+                onClick={() => removeFilter(tag.type, tag.value)}
+              >
+                ×
+              </TagClose>
+            </TagFilter>
+          ))}
+        </TagsRow>
+      )}
+    </HeaderContainer>
+  );
+};

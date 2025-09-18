@@ -13,9 +13,8 @@ import {
 } from "./styled";
 import { TransactionsTable } from "@/ui/Table";
 import { Charts } from "../Charts";
-import { parseAmount } from "@/ultis/parseAmount";
-import { formatCurrency } from "@/ultis/formatCurrency";
-
+import { parseAmount } from "@/utils/parseAmount";
+import { formatCurrency } from "@/utils/formatCurrency";
 interface IDashboardCards {
   revenue: number;
   expenses: number;
@@ -23,7 +22,20 @@ interface IDashboardCards {
   totalBalance: number;
 }
 
-export default function DashboardPage({ data }: { data: ITransaction[] }) {
+interface IDashboarPage {
+  filterOptions: {
+    account: string[];
+    industry: string[];
+    state: string[];
+    transaction_type: string[];
+  };
+  format: ITransaction[];
+}
+
+export default function DashboardPage({
+  filterOptions,
+  format,
+}: IDashboarPage) {
   const [dashboardCards, setDashboardCards] = useState<IDashboardCards>({
     revenue: 0,
     expenses: 0,
@@ -32,6 +44,8 @@ export default function DashboardPage({ data }: { data: ITransaction[] }) {
   });
 
   const [loadingCard, setLoadingCard] = useState(true);
+
+  const [dataTable, setDataTable] = useState<ITransaction[]>(format);
 
   function calculateDashboardCards(data: ITransaction[]): IDashboardCards {
     const now = Date.now();
@@ -59,16 +73,17 @@ export default function DashboardPage({ data }: { data: ITransaction[] }) {
   }
 
   useEffect(() => {
-    const cards = calculateDashboardCards(data);
+    const cards = calculateDashboardCards(format);
     setLoadingCard(false);
     setDashboardCards(cards);
-  }, [data]);
+    setDataTable(format);
+  }, [format]);
 
   return (
     <DashboardContainer>
       <Sidebar />
       <MainContent>
-        <Header />
+        <Header filterOptions={filterOptions} />
         <ContentWrapper>
           <Card>
             Revenue:{" "}
@@ -99,8 +114,8 @@ export default function DashboardPage({ data }: { data: ITransaction[] }) {
             )}
           </Card>
 
-          <TransactionsTable data={data} itemsPerPage={10} />
-          <Charts data={data} />
+          <TransactionsTable data={dataTable} itemsPerPage={10} />
+          {dataTable.length > 0 && <Charts data={dataTable} />}
         </ContentWrapper>
       </MainContent>
     </DashboardContainer>

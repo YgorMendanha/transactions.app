@@ -1,6 +1,8 @@
 import styled from "styled-components";
 
-export const StyledButton = styled.button`
+export type Variant = "default" | "primary" | "secondary";
+
+export const StyledButton = styled.button<{ variant?: Variant }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -10,17 +12,34 @@ export const StyledButton = styled.button`
   border: none;
   cursor: pointer;
   font-weight: 600;
-  transition: transform 0.4s normal;
-  background: ${({ theme }) => theme.colors.secondary};
-  color: #ffffff;
-  box-shadow: 0 0px 10px ${({ theme }) => theme.colors.primary};
+  color: ${({ theme }) => theme.colors.text};
+
+  background: ${({ theme, variant }) =>
+    variant === "primary"
+      ? theme.colors.primary
+      : variant === "secondary"
+      ? theme.colors.secondary
+      : theme.colors.background};
+
+  box-shadow: ${({ theme, variant }) =>
+    variant === "primary"
+      ? `0 0 10px ${theme.colors.secondary}`
+      : variant === "secondary"
+      ? `0 0 10px ${theme.colors.primary}`
+      : "none"};
+
+  transition: ${({ variant }) =>
+    variant === "default" ? "none" : "transform 0.3s ease"};
+
   &:hover {
-    transform: scale(1.05);
+    transform: ${({ variant }) => (variant !== "default" ? "scale(1.05)" : "")};
   }
 
   &:active {
-    transform: translateY(0);
+    transform: ${({ variant }) =>
+      variant !== "default" ? "translateY(0)" : ""};
   }
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;

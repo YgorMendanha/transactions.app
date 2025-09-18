@@ -18,7 +18,7 @@ import { Button } from "@/ui/Button";
 import toast from "react-hot-toast";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-import { AuthValidation } from "@/ultis/auth";
+import { AuthValidation } from "@/utils/auth";
 
 type FormData = {
   email: string;

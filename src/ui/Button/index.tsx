@@ -1,10 +1,18 @@
 import { ButtonHTMLAttributes } from "react";
-import { StyledButton } from "./styled";
+import { StyledButton, Variant } from "./styled";
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: "primary" | "ghost";
+  variant?: Variant;
 };
 
-export const Button: React.FC<Props> = ({ children, ...rest }) => {
-  return <StyledButton {...rest}>{children}</StyledButton>;
+export const Button: React.FC<Props> = ({
+  children,
+  variant = "primary",
+  ...rest
+}) => {
+  return (
+    <StyledButton {...rest} variant={variant}>
+      {children}
+    </StyledButton>
+  );
 };

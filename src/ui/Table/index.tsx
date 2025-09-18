@@ -54,6 +54,7 @@ export const TransactionsTable = ({
           <tr>
             <Th>Date</Th>
             <Th>Account</Th>
+            <Th>Industry</Th>
             <Th>Type</Th>
             <Th>Amount</Th>
           </tr>
@@ -63,6 +64,7 @@ export const TransactionsTable = ({
             <tr key={index}>
               <Td>{new Date(Number(tx.date)).toLocaleDateString()}</Td>
               <Td>{tx.account}</Td>
+              <Td>{tx.industry}</Td>
               <Td
                 style={{
                   color: tx.transaction_type === "deposit" ? "green" : "red",
@@ -82,6 +84,12 @@ export const TransactionsTable = ({
       </Table>
 
       <PaginationWrapper>
+        <PageButton
+          onClick={() => setCurrentPage(Math.max(currentPage - 10, 1))}
+          disabled={currentPage === 1}
+        >
+          &lt; &lt;
+        </PageButton>
         <PageButton
           onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
           disabled={currentPage === 1}
@@ -108,6 +116,12 @@ export const TransactionsTable = ({
           disabled={currentPage === totalPages}
         >
           &gt;
+        </PageButton>
+        <PageButton
+          onClick={() => setCurrentPage(Math.min(currentPage + 10, totalPages))}
+          disabled={currentPage === totalPages}
+        >
+          &gt;&gt;
         </PageButton>
       </PaginationWrapper>
     </TableWrapper>

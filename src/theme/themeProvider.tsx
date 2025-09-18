@@ -4,7 +4,7 @@ import React, { useState, ReactNode } from "react";
 import { ThemeProvider } from "styled-components";
 import Cookies from "js-cookie";
 import { GlobalStyle } from "@/styles/GlobalStyle";
-import { darkTheme, lightTheme } from "@/styles/theme";
+import { darkTheme, lightTheme } from "@/theme/theme";
 import { Moon, Sun } from "lucide-react";
 import { BtnChangeTheme } from "./style";
 import { Toaster } from "react-hot-toast";
