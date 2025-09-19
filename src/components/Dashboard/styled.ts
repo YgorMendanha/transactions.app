@@ -1,6 +1,6 @@
 import styled, { keyframes } from "styled-components";
 
-/* layout principal: grid com sidebar + main */
+
 export const DashboardContainer = styled.div`
   display: grid;
   grid-template-columns: var(--sidebar-width, 150px) 1fr;
@@ -9,7 +9,7 @@ export const DashboardContainer = styled.div`
   overflow: hidden;
 `;
 
-/* main que ocupa a coluna 2 */
+
 export const MainContent = styled.div`
   flex: 1;
   min-width: 0;
@@ -35,7 +35,6 @@ export const ContentWrapper = styled.div`
   }
 `;
 
-/* spinner (se usar) */
 export const spin = keyframes`
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -51,7 +50,6 @@ export const Spinner = styled.div`
   margin: 10px auto;
 `;
 
-/* tabela de transações ocupa toda a largura */
 export const TransactionsTableWrapper = styled.div`
   grid-column: 1 / -1;
   width: 100%;

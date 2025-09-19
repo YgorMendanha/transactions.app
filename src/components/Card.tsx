@@ -8,19 +8,17 @@ const CardContainer = styled.div`
   width: 100%;
   box-sizing: border-box;
 
-  min-width: 0; /* evita overflow no grid */
+  min-width: 0;
   min-height: 0;
 
   overflow: hidden;
 
-  /* quebra strings longas (urls, ids, etc) */
   word-break: break-word;
   overflow-wrap: anywhere;
 
-  /* aplica truncamento em todos os textos dentro */
   & * {
     display: -webkit-box;
-    -webkit-line-clamp: 2; /* máximo 2 linhas */
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -29,7 +27,6 @@ const CardContainer = styled.div`
   }
 `;
 
-/* export */
 export const Card = ({ children }: { children: React.ReactNode }) => (
   <CardContainer>{children}</CardContainer>
 );

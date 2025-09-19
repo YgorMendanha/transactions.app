@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import DashboardPage from "@/components/dashboard/Dashboard";
+import DashboardPage from "@/components/Dashboard";
 import transactions from "@/db/transactions.json";
 import { ITransaction } from "@/types/transaction";
 import { AuthValidation } from "@/utils/auth";
