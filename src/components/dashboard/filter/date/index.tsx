@@ -46,12 +46,13 @@ export const SelectDate = () => {
   const router = useRouter();
   const theme = useTheme();
   const { width } = useWindowSize();
+  const mobileDesign = width < 800;
 
   const [dates, setDates] = useState(initialStateFilter);
 
   const customStaticRanges = createStaticRanges([
     {
-      label: "Hoje",
+      label: "Today",
       range: () => ({
         startDate: dayjs().toDate(),
         endDate: dayjs().toDate(),
@@ -61,18 +62,17 @@ export const SelectDate = () => {
         dayjs(range.endDate).isSame(dayjs(), "day"),
     },
     {
-      label: "Semana Atual",
+      label: "Current Week",
       range: () => ({
         startDate: dayjs().weekday(0).toDate(),
         endDate: dayjs().weekday(6).toDate(),
       }),
-
       isSelected: (range) =>
         dayjs(range.startDate).isSame(dayjs().weekday(0), "day") &&
         dayjs(range.endDate).isSame(dayjs().weekday(6), "day"),
     },
     {
-      label: "Mês Atual",
+      label: "Current Month",
       range: () => ({
         startDate: dayjs().startOf("month").toDate(),
         endDate: dayjs().endOf("month").toDate(),
@@ -82,7 +82,7 @@ export const SelectDate = () => {
         dayjs(range.endDate).isSame(dayjs().endOf("month"), "day"),
     },
     {
-      label: "Mês Passado",
+      label: "Last Month",
       range: () => {
         const lastMonth = dayjs().subtract(1, "month");
         return {
@@ -99,7 +99,7 @@ export const SelectDate = () => {
       },
     },
     {
-      label: "Este Ano",
+      label: "This Year",
       range: () => ({
         startDate: dayjs().startOf("year").toDate(),
         endDate: dayjs().endOf("year").toDate(),
@@ -109,7 +109,7 @@ export const SelectDate = () => {
         dayjs(range.endDate).isSame(dayjs().endOf("year"), "day"),
     },
     {
-      label: "Periodo Total",
+      label: "Total Period",
       range: () => {
         return {
           startDate: dayjs().toDate(),
@@ -130,8 +130,6 @@ export const SelectDate = () => {
       router.push(`?start=${startDate}&end=${endDate}`);
     }
   };
-
-  const mobileDesign = width < 800;
 
   return (
     <WrapperDate>

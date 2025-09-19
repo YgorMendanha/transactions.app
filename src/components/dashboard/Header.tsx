@@ -3,7 +3,7 @@
 import styled from "styled-components";
 import { SelectDate } from "./filter/date";
 import { Tooltip } from "@/ui/Tooltip";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import dayjs from "dayjs";
 import { Button } from "@/ui/Button";
 import { AccountFilter } from "./filter/account";
@@ -17,9 +17,11 @@ const HeaderContainer = styled.header`
   background-color: ${({ theme }) => theme.colors.surface};
   color: ${({ theme }) => theme.colors.text};
   padding: 12px 20px;
-  padding-right: 70px;
   box-sizing: border-box;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  @media (min-width: 720px) {
+    padding-right: 70px;
+  }
 `;
 
 const TopRow = styled.div`
@@ -40,6 +42,9 @@ const Title = styled.h1`
   margin: 0;
   font-size: 18px;
   font-weight: 700;
+  @media (max-width: 720px) {
+    height: 40px;
+  }
 `;
 
 const Controls = styled.div`
@@ -62,7 +67,8 @@ const TagsRow = styled.div`
   overflow-x: auto;
   padding-bottom: 6px;
   overflow-x: auto;
-
+  flex-wrap: wrap;
+  justify-content: flex-start;
   &::-webkit-scrollbar {
     height: 6px;
   }
@@ -76,8 +82,8 @@ const TagFilter = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 32px;
-  padding: 0 12px;
+  height: 100%;
+  padding: 10px 15px;
   border-radius: 999px;
   background: ${({ theme }) => `${theme.colors.primary}22`};
   color: ${({ theme }) => theme.colors.primary};
@@ -85,6 +91,17 @@ const TagFilter = styled.div`
   font-size: 13px;
   white-space: nowrap;
   flex-shrink: 0;
+`;
+
+const TagMain = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  @media (max-width: 720px) {
+    max-width: 100px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
 `;
 
 const TagType = styled.span`
@@ -96,6 +113,17 @@ const TagType = styled.span`
   font-size: 11px;
   text-transform: uppercase;
   font-weight: 700;
+  + span {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+    @media (max-width: 720px) {
+      max-width: 100%;
+    }
+  }
 `;
 
 const TagClose = styled.button`
@@ -117,7 +145,9 @@ const TagClose = styled.button`
 const ControlGroup = styled.div`
   display: flex;
   gap: 8px;
-  align-items: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  justify-content: space-between;
 `;
 
 type TagItem = {
@@ -135,7 +165,7 @@ export const Header = ({
     transaction_type: string[];
   };
 }) => {
-  const [labelCalendar, setLabelCalendar] = useState("Período Total");
+  const [labelCalendar, setLabelCalendar] = useState("Total Period");
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -157,7 +187,7 @@ export const Header = ({
 
   useEffect(() => {
     if (!dateIni && !dateFim) {
-      setLabelCalendar("Período Total");
+      setLabelCalendar("Total Period");
       return;
     }
 
@@ -171,9 +201,13 @@ export const Header = ({
       end.isSame(dayjs().endOf("year"), "day");
 
     if (isSameYear) {
-      setLabelCalendar("Este Ano");
+      setLabelCalendar("This Year");
       return;
     }
+
+     // Total deposits and withdrawals per sector
+  // Total balance over time
+  // Net balance of each account
 
     const lastMonth = dayjs().subtract(1, "month");
     const isLastMonth =
@@ -183,7 +217,7 @@ export const Header = ({
       end.isSame(lastMonth.endOf("month"), "day");
 
     if (isLastMonth) {
-      setLabelCalendar("Mês Passado");
+      setLabelCalendar("Last Month");
       return;
     }
 
@@ -194,7 +228,7 @@ export const Header = ({
       end.isSame(dayjs().endOf("month"), "day");
 
     if (isSameMonth) {
-      setLabelCalendar("Mês Atual");
+      setLabelCalendar("Current Month");
       return;
     }
 
@@ -205,7 +239,7 @@ export const Header = ({
       end.isSame(dayjs().weekday(6), "day");
 
     if (isSameWeek) {
-      setLabelCalendar("Semana Atual");
+      setLabelCalendar("Current Week");
       return;
     }
 
@@ -216,16 +250,44 @@ export const Header = ({
       end.isSame(dayjs(), "day");
 
     if (today) {
-      setLabelCalendar("Hoje");
+      setLabelCalendar("Today");
       return;
     }
 
     if (start.isValid() && end.isValid()) {
-      setLabelCalendar(`${start.format("DD/MM")} - ${end.format("DD/MM")}`);
+      // Formato inglês MM/DD
+      setLabelCalendar(`${start.format("MM/DD")} - ${end.format("MM/DD")}`);
     } else {
-      setLabelCalendar("Período Total");
+      setLabelCalendar("Total Period");
     }
   }, [dateIni, dateFim]);
+
+  const headerRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const setHeaderVar = () => {
+      const h = headerRef.current?.offsetHeight ?? 0;
+
+      document.documentElement.style.setProperty("--header-height", `${h}px`);
+    };
+
+    const update = () => requestAnimationFrame(setHeaderVar);
+
+    update();
+
+    let ro: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== "undefined" && headerRef.current) {
+      ro = new ResizeObserver(update);
+      ro.observe(headerRef.current);
+    }
+
+    window.addEventListener("resize", update);
+
+    return () => {
+      window.removeEventListener("resize", update);
+      if (ro) ro.disconnect();
+    };
+  }, []);
 
   const removeFilter = useCallback(
     (type: TagItem["type"], value: string) => {
@@ -241,20 +303,19 @@ export const Header = ({
   );
 
   return (
-    <HeaderContainer>
+    <HeaderContainer ref={headerRef}>
       <TopRow>
         <Title>Dashboard</Title>
 
         <Controls>
           <ControlGroup>
-            <Tooltip content={<SelectDate />}>
-              <Button variant="default">{labelCalendar}</Button>
-            </Tooltip>
-
             <AccountFilter options={filterOptions.account} />
             <IndustryFilter options={filterOptions.industry} />
             <StateFilter options={filterOptions.state} />
             <TypeFilter options={filterOptions.transaction_type} />
+            <Tooltip content={<SelectDate />}>
+              <Button variant="default">{labelCalendar}</Button>
+            </Tooltip>
           </ControlGroup>
         </Controls>
       </TopRow>
@@ -264,8 +325,10 @@ export const Header = ({
         <TagsRow aria-label="Filtros aplicados">
           {combinedTags.map((tag) => (
             <TagFilter key={`${tag.type}-${tag.value}`}>
-              <TagType>{tag.type}</TagType>
-              <span>{tag.value}</span>
+              <TagMain>
+                <TagType>{tag.type}</TagType>
+                <span>{tag.value}</span>
+              </TagMain>
               <TagClose
                 aria-label={`Remover filtro ${tag.value}`}
                 onClick={() => removeFilter(tag.type, tag.value)}

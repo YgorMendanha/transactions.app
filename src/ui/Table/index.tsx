@@ -1,8 +1,10 @@
 import { useState } from "react";
 import {
   PageButton,
+  PaginationInner,
   PaginationWrapper,
   Table,
+  TableContainer,
   TableWrapper,
   Td,
   Th,
@@ -48,82 +50,80 @@ export const TransactionsTable = ({
   const pages = getPaginationPages(currentPage, totalPages);
 
   return (
-    <TableWrapper>
-      <Table>
-        <thead>
-          <tr>
-            <Th>Date</Th>
-            <Th>Account</Th>
-            <Th>Industry</Th>
-            <Th>Type</Th>
-            <Th>Amount</Th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentItems.map((tx, index) => (
-            <tr key={index}>
-              <Td>{new Date(Number(tx.date)).toLocaleDateString()}</Td>
-              <Td>{tx.account}</Td>
-              <Td>{tx.industry}</Td>
-              <Td
-                style={{
-                  color: tx.transaction_type === "deposit" ? "green" : "red",
-                }}
-              >
-                {tx.transaction_type}
-              </Td>
-              <Td>
-                {Number(tx.amount).toLocaleString("en-US", {
-                  style: "currency",
-                  currency: tx.currency.toUpperCase(),
-                })}
-              </Td>
+    <TableContainer>
+      <TableWrapper>
+        <Table>
+          <thead>
+            <tr>
+              <Th>Date</Th>
+              <Th>Account</Th>
+              <Th>Industry</Th>
+              <Th>Type</Th>
+              <Th>Amount</Th>
             </tr>
-          ))}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {currentItems.map((tx, index) => (
+              <tr key={index}>
+                <Td>{new Date(Number(tx.date)).toLocaleDateString()}</Td>
+                <Td>{tx.account}</Td>
+                <Td>{tx.industry}</Td>
+                <Td
+                  style={{
+                    color: tx.transaction_type === "deposit" ? "green" : "red",
+                  }}
+                >
+                  {tx.transaction_type}
+                </Td>
+                <Td>
+                  {Number(tx.amount).toLocaleString("en-US", {
+                    style: "currency",
+                    currency: tx.currency.toUpperCase(),
+                  })}
+                </Td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </TableWrapper>
 
       <PaginationWrapper>
-        <PageButton
-          onClick={() => setCurrentPage(Math.max(currentPage - 10, 1))}
-          disabled={currentPage === 1}
-        >
-          &lt; &lt;
-        </PageButton>
-        <PageButton
-          onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
-          disabled={currentPage === 1}
-        >
-          &lt;
-        </PageButton>
-
-        {pages.map((page, index) =>
-          page === "..." ? (
-            <span key={index}>...</span>
-          ) : (
-            <PageButton
-              key={index}
-              $active={page === currentPage}
-              onClick={() => setCurrentPage(Number(page))}
-            >
-              {page}
+        <PaginationInner>
+          <PageButton
+            onClick={() => setCurrentPage(Math.max(currentPage - 10, 1))}
+            disabled={currentPage === 1}
+          >
+            &lt; &lt;
+          </PageButton>
+          <PageButton
+            onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            &lt;
+          </PageButton>
+          {pages.map((p) => (
+            <PageButton key={p} $active={p === currentPage}>
+              {p}
             </PageButton>
-          )
-        )}
-
-        <PageButton
-          onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
-          disabled={currentPage === totalPages}
-        >
-          &gt;
-        </PageButton>
-        <PageButton
-          onClick={() => setCurrentPage(Math.min(currentPage + 10, totalPages))}
-          disabled={currentPage === totalPages}
-        >
-          &gt;&gt;
-        </PageButton>
+          ))}
+          <PageButton
+            onClick={() =>
+              setCurrentPage(Math.min(currentPage + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+          >
+            &gt;
+          </PageButton>
+          <PageButton
+            onClick={() =>
+              setCurrentPage(Math.min(currentPage + 10, totalPages))
+            }
+            disabled={currentPage === totalPages}
+          >
+            &gt;&gt;
+          </PageButton>
+        </PaginationInner>
       </PaginationWrapper>
-    </TableWrapper>
+    </TableContainer>
   );
 };

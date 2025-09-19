@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import {
   Home,
@@ -8,9 +8,10 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { useWindowSize } from "@/hooks/useWindowSize";
 
 const SidebarContainer = styled.div<{ $collapsed: boolean }>`
-  width: ${({ $collapsed }) => ($collapsed ? "60px" : "150px")};
+  width: ${({ $collapsed }) => ($collapsed ? "50px" : "130px")};
   height: 100vh;
   background-color: ${({ theme }) => theme.colors.primary};
   color: #ffffff;
@@ -20,6 +21,7 @@ const SidebarContainer = styled.div<{ $collapsed: boolean }>`
   transition: width 0.3s ease;
   position: sticky;
   top: 0;
+  box-sizing: border-box;
 `;
 
 const ToggleButton = styled.button<{ $collapsed: boolean }>`
@@ -43,28 +45,63 @@ const SidebarItem = styled.div<{ $collapsed: boolean }>`
   text-overflow: ellipsis;
   opacity: 1;
   transition: all 0.2s ease;
-  justify-content: ${({ $collapsed }) => ($collapsed ? "center" : "center")};
+  justify-content: center;
+
   span {
     display: ${({ $collapsed }) => ($collapsed ? "none" : "inline")};
-  }
-
-  &:hover {
-    opacity: 0.8;
   }
 `;
 
 export const Sidebar = () => {
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  const { width } = useWindowSize();
+  const mobileDesign = width < 500;
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const setVar = () => {
+      const w = el.offsetWidth;
+      document.documentElement.style.setProperty("--sidebar-width", `${w}px`);
+    };
+
+    setVar();
+
+    let ro: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(() => requestAnimationFrame(setVar));
+      ro.observe(el);
+    }
+
+    const onResize = () => requestAnimationFrame(setVar);
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+      if (ro) ro.disconnect();
+    };
+  }, [collapsed]);
+
+  useEffect(() => {
+    if (mobileDesign) {
+      setCollapsed(true);
+    }
+  }, [width]);
 
   return (
-    <SidebarContainer $collapsed={collapsed}>
-      <ToggleButton
-        onClick={() => setCollapsed(!collapsed)}
-        $collapsed={collapsed}
-      >
-        {collapsed ? <SquareChevronRight /> : <SquareChevronLeft />}
-      </ToggleButton>
+    <SidebarContainer ref={ref} $collapsed={collapsed}>
+      {!mobileDesign && (
+        <ToggleButton
+          onClick={() => setCollapsed((s) => !s)}
+          $collapsed={collapsed}
+        >
+          {collapsed ? <SquareChevronRight /> : <SquareChevronLeft />}
+        </ToggleButton>
+      )}
+
       <SidebarItem $collapsed={collapsed}>
         <Home size={20} /> <span>Home</span>
       </SidebarItem>

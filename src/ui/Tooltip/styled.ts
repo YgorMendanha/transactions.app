@@ -3,6 +3,9 @@ import styled from "styled-components";
 export const WrapperTooltip = styled.div`
   position: relative;
   display: inline-block;
+  @media (max-width: 1180px) {
+    width: 100%;
+  }
 `;
 
 export const Bubble = styled.div<{ $visible: boolean }>`
@@ -26,6 +29,7 @@ export const Bubble = styled.div<{ $visible: boolean }>`
   @media (max-width: 600px) {
     left: 50%;
     right: auto;
-    transform: translateX(-60%);
+    transform: translateX(-50%);
+    position: absolute;
   }
 `;

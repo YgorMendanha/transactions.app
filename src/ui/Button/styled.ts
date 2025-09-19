@@ -13,7 +13,7 @@ export const StyledButton = styled.button<{ variant?: Variant }>`
   cursor: pointer;
   font-weight: 600;
   color: ${({ theme }) => theme.colors.text};
-
+  width: 100%;
   background: ${({ theme, variant }) =>
     variant === "primary"
       ? theme.colors.primary

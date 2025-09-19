@@ -43,8 +43,8 @@ export const Tooltip: React.FC<Props> = ({
     <WrapperTooltip
       ref={ref}
       onMouseEnter={open}
-      onMouseLeave={close}
       onFocus={open}
+      onMouseLeave={close}
       onBlur={close}
     >
       {children}

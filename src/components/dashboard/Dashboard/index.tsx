@@ -115,6 +115,7 @@ export default function DashboardPage({
           </Card>
 
           <TransactionsTable data={dataTable} itemsPerPage={10} />
+
           {dataTable.length > 0 && <Charts data={dataTable} />}
         </ContentWrapper>
       </MainContent>

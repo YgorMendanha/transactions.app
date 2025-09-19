@@ -24,7 +24,7 @@ export default async function Dashboard({
   const data: ITransaction[] = transactions as ITransaction[];
 
   const result = filterTransactions({
-    data: data.slice(0, 20),
+    data: data.slice(0, 100),
     startDate: params.start,
     endDate: params.end,
     accounts: params.account,

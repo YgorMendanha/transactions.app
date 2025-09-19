@@ -13,14 +13,30 @@ import {
 } from "recharts";
 import type { ITransaction } from "@/types/transaction";
 import styled, { useTheme } from "styled-components";
+import { useWindowSize } from "@/hooks/useWindowSize";
 
 const ChartsWrapper = styled.div`
+  p {
+    font-weight: bold;
+    margin-top: 20px;
+  }
+`;
+
+const ChartsContainer = styled.div`
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: 1fr;
   gap: 24px;
   width: 100%;
   box-sizing: border-box;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+
+  p {
+    font-weight: bold;
+    margin-top: 20px;
+  }
 `;
 
 function prepareChartDataOptimized(data: ITransaction[], targetPoints = 1000) {
@@ -134,6 +150,8 @@ function prepareChartDataOptimized(data: ITransaction[], targetPoints = 1000) {
 
 export const Charts = ({ data }: { data: ITransaction[] }) => {
   const theme = useTheme();
+  const { width } = useWindowSize();
+  const mobileDesign = width < 500;
 
   const { barChartData, lineChartData, heatmapData } = useMemo(() => {
     return prepareChartDataOptimized(data, 1200);
@@ -142,83 +160,116 @@ export const Charts = ({ data }: { data: ITransaction[] }) => {
   const currencyFormatter = (value: number) =>
     value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   return (
-    <ChartsWrapper>
-      <ResponsiveContainer width="100%" height={450}>
-        <ReBarChart
-          data={barChartData}
-          margin={{ top: 20, right: 60, left: 60, bottom: 5 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="industry"
-            interval={0}
-            angle={-20}
-            stroke={theme.colors.text}
-            textAnchor="end"
-            height={70}
-            tick={{ fontSize: 12 }}
-          />
-          <YAxis stroke={theme.colors.text} tickFormatter={currencyFormatter} />
-          <Tooltip
-            contentStyle={{ backgroundColor: theme.colors.background }}
-            formatter={(v) => currencyFormatter(Number(v))}
-          />
-          <Legend />
-          <Bar dataKey="deposit" fill="#4caf50" />
-          <Bar dataKey="withdraw" fill="#f44336" />
-        </ReBarChart>
-      </ResponsiveContainer>
+    <>
+      <ChartsWrapper>
+        <p>Total deposits and withdrawals per sector</p>
+        <ChartsContainer>
+          <ResponsiveContainer
+            width="100%"
+            minWidth={800}
+            height={mobileDesign ? 300 : 450}
+          >
+            <ReBarChart
+              data={barChartData}
+              margin={{ top: 20, right: 60, left: 60, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                dataKey="industry"
+                interval={0}
+                angle={-20}
+                stroke={theme.colors.text}
+                textAnchor="end"
+                height={70}
+                tick={{ fontSize: 12 }}
+              />
+              <YAxis
+                stroke={theme.colors.text}
+                tickFormatter={currencyFormatter}
+              />
+              <Tooltip
+                contentStyle={{ backgroundColor: theme.colors.background }}
+                formatter={(v) => currencyFormatter(Number(v))}
+              />
+              <Legend />
+              <Bar dataKey="deposit" fill="#4caf50" />
+              <Bar dataKey="withdraw" fill="#f44336" />
+            </ReBarChart>
+          </ResponsiveContainer>
+        </ChartsContainer>
+      </ChartsWrapper>
 
-      <ResponsiveContainer width="100%" height={450}>
-        <ReLineChart
-          data={lineChartData}
-          margin={{ top: 20, right: 50, left: 50, bottom: 5 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            stroke={theme.colors.text}
-            dataKey="date"
-            interval={Math.max(0, Math.floor(lineChartData.length / 8))}
-          />
-          <YAxis stroke={theme.colors.text} tickFormatter={currencyFormatter} />
-          <Tooltip
-            contentStyle={{ backgroundColor: theme.colors.background }}
-            formatter={(v) => currencyFormatter(Number(v))}
-          />
-          <Line
-            type="monotone"
-            dataKey="balance"
-            stroke={theme.colors.secondary}
-            dot={false}
-          />
-        </ReLineChart>
-      </ResponsiveContainer>
+      <ChartsWrapper>
+        <p>Total balance over time</p>
+        <ChartsContainer>
+          <ResponsiveContainer
+            width="100%"
+            minWidth={800}
+            height={mobileDesign ? 300 : 450}
+          >
+            <ReLineChart
+              data={lineChartData}
+              margin={{ top: 20, right: 50, left: 50, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                stroke={theme.colors.text}
+                dataKey="date"
+                interval={Math.max(0, Math.floor(lineChartData.length / 8))}
+              />
+              <YAxis
+                stroke={theme.colors.text}
+                tickFormatter={currencyFormatter}
+              />
+              <Tooltip
+                contentStyle={{ backgroundColor: theme.colors.background }}
+                formatter={(v) => currencyFormatter(Number(v))}
+              />
+              <Line
+                type="monotone"
+                dataKey="balance"
+                stroke={theme.colors.secondary}
+                dot={false}
+              />
+            </ReLineChart>
+          </ResponsiveContainer>
+        </ChartsContainer>
+      </ChartsWrapper>
 
-      <ResponsiveContainer width="100%" height={1500}>
-        <ReBarChart
-          layout="vertical"
-          data={heatmapData}
-          margin={{ top: 20, right: 50, left: 120, bottom: 5 }}
-        >
-          <XAxis
-            type="number"
-            stroke={theme.colors.text}
-            tickFormatter={currencyFormatter}
-          />
-          <YAxis
-            stroke={theme.colors.text}
-            type="category"
-            angle={-10}
-            tick={{ fontSize: 12 }}
-            dataKey="account"
-          />
-          <Tooltip
-            contentStyle={{ backgroundColor: theme.colors.background }}
-            formatter={(value) => currencyFormatter(Number(value))}
-          />
-          <Bar dataKey="balance" fill="#03a9f4" />
-        </ReBarChart>
-      </ResponsiveContainer>
-    </ChartsWrapper>
+      <ChartsWrapper>
+        <p>Net balance of each account</p>
+        <ChartsContainer>
+          <ResponsiveContainer
+            width="100%"
+            minWidth={800}
+            height={mobileDesign ? 600 : 800}
+          >
+            <ReBarChart
+              layout="vertical"
+              data={heatmapData}
+              margin={{ top: 20, right: 50, left: 120, bottom: 5 }}
+            >
+              <XAxis
+                type="number"
+                stroke={theme.colors.text}
+                tickFormatter={currencyFormatter}
+              />
+              <YAxis
+                stroke={theme.colors.text}
+                type="category"
+                angle={-10}
+                tick={{ fontSize: 12 }}
+                dataKey="account"
+              />
+              <Tooltip
+                contentStyle={{ backgroundColor: theme.colors.background }}
+                formatter={(value) => currencyFormatter(Number(value))}
+              />
+              <Bar dataKey="balance" fill="#03a9f4" />
+            </ReBarChart>
+          </ResponsiveContainer>
+        </ChartsContainer>
+      </ChartsWrapper>
+    </>
   );
 };
