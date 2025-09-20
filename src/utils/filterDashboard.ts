@@ -1,8 +1,12 @@
 import { ITransaction } from "@/types/transaction";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 
 dayjs.extend(utc);
+dayjs.extend(timezone);
+
+const DEFAULT_TZ = "America/Sao_Paulo";
 
 function looksLikeDateOnly(v?: string | number | Date) {
   if (v === undefined || v === null) return false;
@@ -51,10 +55,7 @@ export function filterTransactions({
   console.debug("[filterTransactions] startRaw(ms):", startRaw, startRaw ? new Date(startRaw).toISOString() : null);
   console.debug("[filterTransactions] endRaw(ms):", endRaw, endRaw ? new Date(endRaw).toISOString() : null);
 
-  const itemTs = data
-    .map((d) => toMs(d.date))
-    .filter((t): t is number => typeof t === "number" && !Number.isNaN(t));
-
+  const itemTs = data.map((d) => toMs(d.date)).filter((t): t is number => typeof t === "number" && !Number.isNaN(t));
   if (itemTs.length === 0) {
     console.debug("[filterTransactions] nenhum timestamp válido em data");
     return [];
@@ -77,9 +78,10 @@ export function filterTransactions({
         endMs = dayjs.utc(sDay).endOf("day").valueOf();
         console.debug("[filterTransactions] expanded date-only equal inputs to UTC day:", sDay);
       } else {
-        startMs = startRaw;
-        endMs = endRaw;
-        console.debug("[filterTransactions] equal inputs with time -> using instants as-is");
+        const localDay = dayjs.utc(startRaw).tz(DEFAULT_TZ).format("YYYY-MM-DD");
+        startMs = dayjs.tz(localDay, DEFAULT_TZ).startOf("day").valueOf();
+        endMs = dayjs.tz(localDay, DEFAULT_TZ).endOf("day").valueOf();
+        console.debug("[filterTransactions] expanded equal instants to full local day (tz):", DEFAULT_TZ, localDay);
       }
     } else {
       if (startIsDateOnly && endIsDateOnly) {
