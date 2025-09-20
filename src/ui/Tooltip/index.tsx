@@ -46,6 +46,7 @@ export const Tooltip: React.FC<Props> = ({
       onFocus={open}
       onMouseLeave={close}
       onBlur={close}
+      onClick={() => setVisible((state) => !state)}
     >
       {children}
       <Bubble $visible={visible} role="tooltip" aria-hidden={!visible}>
