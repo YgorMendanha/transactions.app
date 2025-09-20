@@ -4,6 +4,13 @@ import utc from "dayjs/plugin/utc";
 
 dayjs.extend(utc);
 
+function looksLikeDateOnly(v?: string | number | Date) {
+  if (v === undefined || v === null) return false;
+  if (typeof v === "number") return false;
+  const s = String(v).trim();
+  return /^\d{4}[-/]\d{2}[-/]\d{2}$/.test(s);
+}
+
 export function filterTransactions({
   data,
   startDate,
@@ -25,13 +32,23 @@ export function filterTransactions({
 
   const toMs = (v?: string | number | Date): number | undefined => {
     if (v === undefined || v === null || v === "") return undefined;
-    if (typeof v === "number" && Number.isFinite(v)) return v;
+
+    if (typeof v === "number" && Number.isFinite(v)) {
+      if (v < 1e11) return Math.floor(v) * 1000;
+      return Math.floor(v); // assume ms
+    }
+
     const s = String(v).trim();
+
     if (/^\d{10}$/.test(s)) return Number(s) * 1000;
     if (/^\d{13}$/.test(s)) return Number(s);
+
     const d = dayjs.utc(s);
     return d.isValid() ? d.valueOf() : undefined;
   };
+
+  const startRaw = toMs(startDate);
+  const endRaw = toMs(endDate);
 
   const itemTs = data
     .map((d) => toMs(d.date))
@@ -42,22 +59,36 @@ export function filterTransactions({
   const minTs = Math.min(...itemTs);
   const maxTs = Math.max(...itemTs);
 
-  const startRaw = toMs(startDate);
-  const endRaw = toMs(endDate);
-
   let startMs = startRaw ?? dayjs.utc(minTs).startOf("day").valueOf();
   let endMs = endRaw ?? dayjs.utc(maxTs).endOf("day").valueOf();
 
+  const startIsDateOnly = looksLikeDateOnly(startDate);
+  const endIsDateOnly = looksLikeDateOnly(endDate);
+
   if (startRaw !== undefined && endRaw !== undefined) {
     if (startRaw === endRaw) {
-      startMs = dayjs.utc(startRaw).startOf("day").valueOf();
-      endMs = dayjs.utc(endRaw).endOf("day").valueOf();
+      if (startIsDateOnly && endIsDateOnly) {
+        const sDay = dayjs.utc(startRaw).format("YYYY-MM-DD");
+        startMs = dayjs.utc(sDay).startOf("day").valueOf();
+        endMs = dayjs.utc(sDay).endOf("day").valueOf();
+      } else {
+        startMs = startRaw;
+        endMs = endRaw;
+      }
     } else {
-      const sDay = dayjs.utc(startRaw).format("YYYY-MM-DD");
-      const eDay = dayjs.utc(endRaw).format("YYYY-MM-DD");
-      if (sDay === eDay) {
-        startMs = dayjs.utc(startRaw).startOf("day").valueOf();
-        endMs = dayjs.utc(endRaw).endOf("day").valueOf();
+      if (startIsDateOnly && endIsDateOnly) {
+        const sDay = dayjs.utc(startRaw).format("YYYY-MM-DD");
+        const eDay = dayjs.utc(endRaw).format("YYYY-MM-DD");
+        if (sDay === eDay) {
+          startMs = dayjs.utc(sDay).startOf("day").valueOf();
+          endMs = dayjs.utc(sDay).endOf("day").valueOf();
+        } else {
+          startMs = startRaw;
+          endMs = endRaw;
+        }
+      } else {
+        startMs = startRaw;
+        endMs = endRaw;
       }
     }
   }
