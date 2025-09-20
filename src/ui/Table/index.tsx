@@ -59,8 +59,8 @@ export const TransactionsTable = ({
 
   const searchParams = useSearchParams();
 
-  const start = searchParams.get("start");
-  const end = searchParams.get("end");
+  const start = searchParams.get("start") ?? "11/30/2023";
+  const end = searchParams.get("end") ?? "11/30/2023";
 
   const startP = dayjs(start).format("MM/DD/YYYY");
   const endP = dayjs(end).format("MM/DD/YYYY");
