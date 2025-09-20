@@ -52,13 +52,25 @@ export function filterTransactions({
     endMs = dayjs.tz(localDay, DEFAULT_TZ).endOf("day").valueOf();
   }
 
-  console.debug(`[filterTransactions] FILTER WINDOW SP: ${dayjs(startMs).tz(DEFAULT_TZ).format("YYYY-MM-DD HH:mm:ss")} → ${dayjs(endMs).tz(DEFAULT_TZ).format("YYYY-MM-DD HH:mm:ss")}`);
-  console.debug(`[filterTransactions] FILTER WINDOW UTC: ${new Date(startMs).toISOString()} → ${new Date(endMs).toISOString()}`);
+  console.debug(
+    `[filterTransactions] FILTER WINDOW SP: ${dayjs(startMs)
+      .tz(DEFAULT_TZ)
+      .format("YYYY-MM-DD HH:mm:ss")} → ${dayjs(endMs)
+      .tz(DEFAULT_TZ)
+      .format("YYYY-MM-DD HH:mm:ss")}`
+  );
+  console.debug(
+    `[filterTransactions] FILTER WINDOW UTC: ${new Date(
+      startMs
+    ).toISOString()} → ${new Date(endMs).toISOString()}`
+  );
 
   const normalize = (v?: string | string[] | undefined): string[] | null => {
     if (v === undefined || v === null) return null;
     const arr = Array.isArray(v) ? v : [v];
-    const cleaned = arr.map((x) => String(x).trim().toLowerCase()).filter(Boolean);
+    const cleaned = arr
+      .map((x) => String(x).trim().toLowerCase())
+      .filter(Boolean);
     return cleaned.length ? cleaned : null;
   };
 
@@ -69,14 +81,21 @@ export function filterTransactions({
 
   const matches = (list: string[] | null, value?: unknown) => {
     if (!list) return true;
-    return list.includes(String(value ?? "").trim().toLowerCase());
+    return list.includes(
+      String(value ?? "")
+        .trim()
+        .toLowerCase()
+    );
   };
 
   const result = data.filter((item, idx) => {
     const ts = toMs(item.date);
-    const spDate = ts ? dayjs(ts).tz(DEFAULT_TZ).format("YYYY-MM-DD HH:mm:ss") : "invalid";
+    const spDate = ts
+      ? dayjs(ts).tz(DEFAULT_TZ).format("YYYY-MM-DD HH:mm:ss")
+      : "invalid";
 
-    const pass = ts !== undefined &&
+    const pass =
+      ts !== undefined &&
       ts >= startMs &&
       ts <= endMs &&
       matches(accs, item.account) &&
@@ -84,9 +103,11 @@ export function filterTransactions({
       matches(sts, item.state) &&
       matches(types, item.transaction_type);
 
-    console.debug(
-      `[${idx}] original: ${item.date} | timestamp: ${ts} | SP: ${spDate} | PASS FILTER: ${pass}`
-    );
+    if (pass) {
+      console.debug(
+        `[${idx}] original: ${item.date} | timestamp: ${ts} | SP: ${spDate} | PASS FILTER: ${pass}`
+      );
+    }
 
     return pass;
   });
