@@ -69,9 +69,9 @@ export default function LoginCard() {
         Cookies.set("token", response.token);
         router.push("/dashboard");
       }
+      setLoading(false);
     } catch (err) {
       console.error(err);
-    } finally {
       setLoading(false);
     }
   };
