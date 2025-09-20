@@ -11,8 +11,10 @@ import {
 } from "./styled";
 import { ITransaction } from "@/types/transaction";
 import dayjs from "dayjs";
-import { useParams, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import utc from "dayjs/plugin/utc";
 
+dayjs.extend(utc);
 interface TransactionsTableProps {
   data: ITransaction[];
   itemsPerPage?: number;
@@ -60,10 +62,8 @@ export const TransactionsTable = ({
   const start = searchParams.get("start");
   const end = searchParams.get("end");
 
-  
-  const startP = dayjs(start);
-  const endP = dayjs(end);
-  console.log({ startP, endP });
+  const startP = dayjs(start).format("MM/DD/YYYY");
+  const endP = dayjs(end).format("MM/DD/YYYY");
 
   return (
     <TableContainer>
@@ -84,11 +84,15 @@ export const TransactionsTable = ({
                 <Td>{tx.date}</Td>
                 <Td>{dayjs(tx.date).format("MM/DD/YYYY")}</Td>
 
-                <Td>{startP.format("MM/DD/YYYY")}</Td>
-                <Td>{`${dayjs(tx.date).isBefore(startP, "day")}`}</Td>
+                <Td>{startP}</Td>
+                <Td>{`${!dayjs(tx.date).isBefore(startP, "day")}`}</Td>
 
-                <Td>{endP.format("MM/DD/YYYY")}</Td>
-                <Td>{`${dayjs(tx.date).isAfter(endP, "day")}`}</Td>
+                <Td>{endP}</Td>
+                <Td>{`${!dayjs(tx.date).isAfter(endP, "day")}`}</Td>
+                <Td>{`${
+                  !dayjs(tx.date).isBefore(startP, "day") &&
+                  !dayjs(tx.date).isAfter(endP, "day")
+                }`}</Td>
 
                 <Td
                   style={{

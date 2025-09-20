@@ -52,10 +52,7 @@ export function filterTransactions({
   const result = data.filter((item) => {
     const date = dayjs(item.date);
 
-    if (
-      (start && date.isBefore(start, "day")) ||
-      (end && date.isAfter(end, "day"))
-    )
+    if (start && date.isBefore(start, "day") && end && date.isAfter(end, "day"))
       return false;
 
     if (!matches(accs, item.account)) return false;
