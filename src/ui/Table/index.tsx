@@ -108,15 +108,26 @@ export const TransactionsTable = ({
           >
             &lt;
           </PageButton>
-          {pages.map((p) => (
+          {pages.map((p, index) => (
             <PageButton
-              onClick={() => setCurrentPage(Number(p))}
-              key={p}
+              key={index}
               $active={p === currentPage}
+              onClick={() => {
+                if (p === "...") {
+                  const prev = pages[index - 1];
+                  const next = pages[index + 1];
+                  if (typeof prev === "number" && typeof next === "number") {
+                    setCurrentPage(Math.round((prev + next) / 2));
+                  }
+                } else {
+                  setCurrentPage(Number(p));
+                }
+              }}
             >
               {p}
             </PageButton>
           ))}
+
           <PageButton
             onClick={() =>
               setCurrentPage(Math.min(currentPage + 1, totalPages))
