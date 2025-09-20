@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import {
   createStaticRanges,
@@ -22,8 +22,8 @@ import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import { Button } from "@/ui/Button";
 import { useTheme } from "styled-components";
-import { WrapperDate } from "./styled";
 import { useWindowSize } from "@/hooks/useWindowSize";
+import { WrapperDate } from "./styled";
 
 export interface FilterRevenuesExpensesInterface {
   status: { id: number; name: string; value: string }[];

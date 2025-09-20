@@ -102,7 +102,11 @@ export const TransactionsTable = ({
             &lt;
           </PageButton>
           {pages.map((p) => (
-            <PageButton key={p} $active={p === currentPage}>
+            <PageButton
+              onClick={() => setCurrentPage(Number(p))}
+              key={p}
+              $active={p === currentPage}
+            >
               {p}
             </PageButton>
           ))}

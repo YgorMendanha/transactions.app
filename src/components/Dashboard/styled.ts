@@ -1,6 +1,5 @@
 import styled, { keyframes } from "styled-components";
 
-
 export const DashboardContainer = styled.div`
   display: grid;
   grid-template-columns: var(--sidebar-width, 150px) 1fr;
@@ -8,7 +7,6 @@ export const DashboardContainer = styled.div`
   height: 100vh;
   overflow: hidden;
 `;
-
 
 export const MainContent = styled.div`
   flex: 1;
@@ -23,12 +21,25 @@ export const MainContent = styled.div`
 export const ContentWrapper = styled.div`
   padding: 20px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 20px;
   overflow-y: auto;
   max-height: calc(100vh - var(--header-height, 130px));
   width: 100%;
   box-sizing: border-box;
+
+  grid-template-columns: repeat(1, 1fr); /* padrão: 1 coluna no mobile */
+
+  @media (min-width: 600px) {
+    grid-template-columns: repeat(2, 1fr); /* tablets pequenos */
+  }
+
+  @media (min-width: 900px) {
+    grid-template-columns: repeat(3, 1fr); /* tablets maiores */
+  }
+
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(4, 1fr); /* desktops */
+  }
 
   & > * {
     min-width: 0;

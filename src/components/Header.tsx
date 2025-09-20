@@ -1,16 +1,13 @@
 "use client";
 
 import styled from "styled-components";
-import { SelectDate } from "./filter/date";
+import { SelectDate } from "./Filter/date";
 import { Tooltip } from "@/ui/Tooltip";
 import { useEffect, useState, useCallback, useRef } from "react";
 import dayjs from "dayjs";
 import { Button } from "@/ui/Button";
-import { AccountFilter } from "./filter/account";
-import { IndustryFilter } from "./filter/industry";
-import { StateFilter } from "./filter/state";
+import { SelectFilter } from "./Filter/selectFilter";
 import { useSearchParams, useRouter } from "next/navigation";
-import { TypeFilter } from "./filter/type";
 
 const HeaderContainer = styled.header`
   width: 100%;
@@ -205,9 +202,9 @@ export const Header = ({
       return;
     }
 
-     // Total deposits and withdrawals per sector
-  // Total balance over time
-  // Net balance of each account
+    // Total deposits and withdrawals per sector
+    // Total balance over time
+    // Net balance of each account
 
     const lastMonth = dayjs().subtract(1, "month");
     const isLastMonth =
@@ -309,10 +306,13 @@ export const Header = ({
 
         <Controls>
           <ControlGroup>
-            <AccountFilter options={filterOptions.account} />
-            <IndustryFilter options={filterOptions.industry} />
-            <StateFilter options={filterOptions.state} />
-            <TypeFilter options={filterOptions.transaction_type} />
+            <SelectFilter filter="account" options={filterOptions.account} />
+            <SelectFilter filter="industry" options={filterOptions.industry} />
+            <SelectFilter filter="state" options={filterOptions.state} />
+            <SelectFilter
+              filter="type"
+              options={filterOptions.transaction_type}
+            />
             <Tooltip content={<SelectDate />}>
               <Button $variant="default">{labelCalendar}</Button>
             </Tooltip>
