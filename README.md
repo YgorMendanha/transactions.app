@@ -66,3 +66,8 @@ Projeto exemplo de um dashboard financeiro com autenticação (login por JWT), t
     npm run build
     npm start
     ```
+
+## Credenciais
+
+email: ym@email.com <br>
+password: 123456
