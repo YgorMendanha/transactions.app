@@ -12,7 +12,7 @@ export const Tooltip: React.FC<Props> = ({
   children,
   closeDelay = 150,
 }) => {
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
   const timer = useRef<number | null>(null);
 
@@ -44,6 +44,8 @@ export const Tooltip: React.FC<Props> = ({
       ref={ref}
       onMouseEnter={open}
       onFocus={open}
+      onMouseLeave={close}
+      onBlur={close}
     >
       {children}
       <Bubble $visible={visible} role="tooltip" aria-hidden={!visible}>
