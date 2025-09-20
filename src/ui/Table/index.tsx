@@ -11,7 +11,6 @@ import {
 } from "./styled";
 import { ITransaction } from "@/types/transaction";
 import dayjs from "dayjs";
-import { useSearchParams } from "next/navigation";
 import utc from "dayjs/plugin/utc";
 
 dayjs.extend(utc);
@@ -56,14 +55,6 @@ export const TransactionsTable = ({
   useEffect(() => {
     setCurrentPage(1);
   }, [data]);
-
-  const searchParams = useSearchParams();
-
-  const start = searchParams.get("start") ?? "11/30/2023";
-  const end = searchParams.get("end") ?? "11/30/2023";
-
-  const startP = dayjs(start).format("MM/DD/YYYY");
-  const endP = dayjs(end).format("MM/DD/YYYY");
 
   return (
     <TableContainer>
