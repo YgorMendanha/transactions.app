@@ -151,7 +151,7 @@ export const SelectDate = () => {
         />
       )}
       <Button
-        variant="default"
+        $variant="default"
         onClick={() => {
           setDates(initialStateFilter);
           router.push(`?`);
