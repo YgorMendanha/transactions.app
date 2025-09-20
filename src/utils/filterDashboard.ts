@@ -8,13 +8,6 @@ dayjs.extend(timezone);
 
 const DEFAULT_TZ = "America/Sao_Paulo";
 
-function looksLikeDateOnly(v?: string | number | Date) {
-  if (v === undefined || v === null) return false;
-  if (typeof v === "number") return false;
-  const s = String(v).trim();
-  return /^\d{4}[-/]\d{2}[-/]\d{2}$/.test(s);
-}
-
 export function filterTransactions({
   data,
   startDate,
@@ -43,69 +36,24 @@ export function filterTransactions({
     const s = String(v).trim();
     if (/^\d{10}$/.test(s)) return Number(s) * 1000;
     if (/^\d{13}$/.test(s)) return Number(s);
-    const d = dayjs.utc(s);
+    const d = dayjs(v).tz(DEFAULT_TZ);
     return d.isValid() ? d.valueOf() : undefined;
   };
 
   const startRaw = toMs(startDate);
   const endRaw = toMs(endDate);
 
-  console.debug("[filterTransactions] startDate raw input:", startDate);
-  console.debug("[filterTransactions] endDate raw input:", endDate);
-  console.debug("[filterTransactions] startRaw(ms):", startRaw, startRaw ? new Date(startRaw).toISOString() : null);
-  console.debug("[filterTransactions] endRaw(ms):", endRaw, endRaw ? new Date(endRaw).toISOString() : null);
+  let startMs = startRaw ?? dayjs().tz(DEFAULT_TZ).startOf("day").valueOf();
+  let endMs = endRaw ?? dayjs().tz(DEFAULT_TZ).endOf("day").valueOf();
 
-  const itemTs = data.map((d) => toMs(d.date)).filter((t): t is number => typeof t === "number" && !Number.isNaN(t));
-  if (itemTs.length === 0) {
-    console.debug("[filterTransactions] nenhum timestamp válido em data");
-    return [];
+  if (startRaw !== undefined && endRaw !== undefined && startRaw === endRaw) {
+    const localDay = dayjs.tz(startRaw, DEFAULT_TZ).format("YYYY-MM-DD");
+    startMs = dayjs.tz(localDay, DEFAULT_TZ).startOf("day").valueOf();
+    endMs = dayjs.tz(localDay, DEFAULT_TZ).endOf("day").valueOf();
   }
 
-  const minTs = Math.min(...itemTs);
-  const maxTs = Math.max(...itemTs);
-
-  let startMs = startRaw ?? dayjs.utc(minTs).startOf("day").valueOf();
-  let endMs = endRaw ?? dayjs.utc(maxTs).endOf("day").valueOf();
-
-  const startIsDateOnly = looksLikeDateOnly(startDate);
-  const endIsDateOnly = looksLikeDateOnly(endDate);
-
-  if (startRaw !== undefined && endRaw !== undefined) {
-    if (startRaw === endRaw) {
-      if (startIsDateOnly && endIsDateOnly) {
-        const sDay = dayjs.utc(startRaw).format("YYYY-MM-DD");
-        startMs = dayjs.utc(sDay).startOf("day").valueOf();
-        endMs = dayjs.utc(sDay).endOf("day").valueOf();
-        console.debug("[filterTransactions] expanded date-only equal inputs to UTC day:", sDay);
-      } else {
-        const localDay = dayjs.utc(startRaw).tz(DEFAULT_TZ).format("YYYY-MM-DD");
-        startMs = dayjs.tz(localDay, DEFAULT_TZ).startOf("day").valueOf();
-        endMs = dayjs.tz(localDay, DEFAULT_TZ).endOf("day").valueOf();
-        console.debug("[filterTransactions] expanded equal instants to full local day (tz):", DEFAULT_TZ, localDay);
-      }
-    } else {
-      if (startIsDateOnly && endIsDateOnly) {
-        const sDay = dayjs.utc(startRaw).format("YYYY-MM-DD");
-        const eDay = dayjs.utc(endRaw).format("YYYY-MM-DD");
-        if (sDay === eDay) {
-          startMs = dayjs.utc(sDay).startOf("day").valueOf();
-          endMs = dayjs.utc(sDay).endOf("day").valueOf();
-          console.debug("[filterTransactions] different instants but same date-only -> expanded to UTC day:", sDay);
-        } else {
-          startMs = startRaw;
-          endMs = endRaw;
-          console.debug("[filterTransactions] different date-only days -> using instants");
-        }
-      } else {
-        startMs = startRaw;
-        endMs = endRaw;
-        console.debug("[filterTransactions] at least one input has time -> using instants");
-      }
-    }
-  }
-
-  console.debug("[filterTransactions] final window (ms):", startMs, endMs);
-  console.debug("[filterTransactions] final window (ISO):", new Date(startMs).toISOString(), new Date(endMs).toISOString());
+  console.debug(`[filterTransactions] FILTER WINDOW SP: ${dayjs(startMs).tz(DEFAULT_TZ).format("YYYY-MM-DD HH:mm:ss")} → ${dayjs(endMs).tz(DEFAULT_TZ).format("YYYY-MM-DD HH:mm:ss")}`);
+  console.debug(`[filterTransactions] FILTER WINDOW UTC: ${new Date(startMs).toISOString()} → ${new Date(endMs).toISOString()}`);
 
   const normalize = (v?: string | string[] | undefined): string[] | null => {
     if (v === undefined || v === null) return null;
@@ -124,29 +72,24 @@ export function filterTransactions({
     return list.includes(String(value ?? "").trim().toLowerCase());
   };
 
-  data.slice(0, 10).forEach((it, idx) => {
-    const ts = toMs(it.date);
-    console.debug(`[filterTransactions] sample[${idx}] raw date:`, it.date, "-> ts:", ts, ts ? new Date(ts).toISOString() : null);
-  });
-
-  const result = data.filter((item) => {
+  const result = data.filter((item, idx) => {
     const ts = toMs(item.date);
-    if (ts === undefined) return false;
-    if (ts < startMs || ts > endMs) return false;
-    if (!matches(accs, item.account)) return false;
-    if (!matches(inds, item.industry)) return false;
-    if (!matches(sts, item.state)) return false;
-    if (!matches(types, item.transaction_type)) return false;
-    return true;
+    const spDate = ts ? dayjs(ts).tz(DEFAULT_TZ).format("YYYY-MM-DD HH:mm:ss") : "invalid";
+
+    const pass = ts !== undefined &&
+      ts >= startMs &&
+      ts <= endMs &&
+      matches(accs, item.account) &&
+      matches(inds, item.industry) &&
+      matches(sts, item.state) &&
+      matches(types, item.transaction_type);
+
+    console.debug(
+      `[${idx}] original: ${item.date} | timestamp: ${ts} | SP: ${spDate} | PASS FILTER: ${pass}`
+    );
+
+    return pass;
   });
 
-  const sorted = result.sort((a, b) => {
-    const ta = toMs(a.date) ?? 0;
-    const tb = toMs(b.date) ?? 0;
-    return tb - ta;
-  });
-
-  console.debug("[filterTransactions] result count:", sorted.length);
-
-  return sorted;
+  return result.sort((a, b) => (toMs(b.date) ?? 0) - (toMs(a.date) ?? 0));
 }
