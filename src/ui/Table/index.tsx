@@ -81,19 +81,9 @@ export const TransactionsTable = ({
           <tbody>
             {currentItems.map((tx, index) => (
               <tr key={index}>
-                <Td>{tx.date}</Td>
-                <Td>{dayjs(tx.date).format("MM/DD/YYYY")}</Td>
-
-                <Td>{startP}</Td>
-                <Td>{`${!dayjs(tx.date).isBefore(startP, "day")}`}</Td>
-
-                <Td>{endP}</Td>
-                <Td>{`${!dayjs(tx.date).isAfter(endP, "day")}`}</Td>
-                <Td>{`${
-                  !dayjs(tx.date).isBefore(startP, "day") &&
-                  !dayjs(tx.date).isAfter(endP, "day")
-                }`}</Td>
-
+                <Td>{dayjs.utc(tx.date).format("MM/DD/YYYY")}</Td>
+                <Td>{tx.account}</Td>
+                <Td>{tx.industry}</Td>
                 <Td
                   style={{
                     color: tx.transaction_type === "deposit" ? "green" : "red",
