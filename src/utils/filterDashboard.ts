@@ -1,12 +1,8 @@
 import { ITransaction } from "@/types/transaction";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
 
 dayjs.extend(utc);
-dayjs.extend(timezone);
-
-const DEFAULT_TZ = "America/Sao_Paulo";
 
 export function filterTransactions({
   data,
@@ -27,46 +23,8 @@ export function filterTransactions({
 }): ITransaction[] {
   if (!data || data.length === 0) return [];
 
-  const toMs = (v?: string | number | Date): number | undefined => {
-    if (v === undefined || v === null || v === "") return undefined;
-    if (typeof v === "number" && Number.isFinite(v)) {
-      if (v < 1e11) return Math.floor(v) * 1000;
-      return Math.floor(v);
-    }
-    const s = String(v).trim();
-    if (/^\d{10}$/.test(s)) return Number(s) * 1000;
-    if (/^\d{13}$/.test(s)) return Number(s);
-    const d = dayjs(v).tz(DEFAULT_TZ);
-    return d.isValid() ? d.valueOf() : undefined;
-  };
-
-  const startRaw = toMs(startDate);
-  const endRaw = toMs(endDate);
-
-  let startMs = startRaw ?? dayjs().tz(DEFAULT_TZ).startOf("day").valueOf();
-  let endMs = endRaw ?? dayjs().tz(DEFAULT_TZ).endOf("day").valueOf();
-
-  if (startRaw !== undefined && endRaw !== undefined && startRaw === endRaw) {
-    const localDay = dayjs.tz(startRaw, DEFAULT_TZ).format("YYYY-MM-DD");
-    startMs = dayjs.tz(localDay, DEFAULT_TZ).startOf("day").valueOf();
-    endMs = dayjs.tz(localDay, DEFAULT_TZ).endOf("day").valueOf();
-  }
-
-  console.debug(
-    `[filterTransactions] FILTER WINDOW SP: ${dayjs(startMs)
-      .tz(DEFAULT_TZ)
-      .format("YYYY-MM-DD HH:mm:ss")} → ${dayjs(endMs)
-      .tz(DEFAULT_TZ)
-      .format("YYYY-MM-DD HH:mm:ss")}`
-  );
-  console.debug(
-    `[filterTransactions] FILTER WINDOW UTC: ${new Date(
-      startMs
-    ).toISOString()} → ${new Date(endMs).toISOString()}`
-  );
-
   const normalize = (v?: string | string[] | undefined): string[] | null => {
-    if (v === undefined || v === null) return null;
+    if (!v) return null;
     const arr = Array.isArray(v) ? v : [v];
     const cleaned = arr
       .map((x) => String(x).trim().toLowerCase())
@@ -88,29 +46,25 @@ export function filterTransactions({
     );
   };
 
-  const result = data.filter((item, idx) => {
-    const ts = toMs(item.date);
-    const spDate = ts
-      ? dayjs(ts).tz(DEFAULT_TZ).format("YYYY-MM-DD HH:mm:ss")
-      : "invalid";
+  const start = startDate ? dayjs(startDate) : undefined;
+  const end = endDate ? dayjs(endDate) : undefined;
 
-    const pass =
-      ts !== undefined &&
-      ts >= startMs &&
-      ts <= endMs &&
-      matches(accs, item.account) &&
-      matches(inds, item.industry) &&
-      matches(sts, item.state) &&
-      matches(types, item.transaction_type);
+  const result = data.filter((item) => {
+    const date = dayjs(item.date);
 
-    if (pass) {
-      console.debug(
-        `[${idx}] original: ${item.date} | timestamp: ${ts} | SP: ${spDate} | PASS FILTER: ${pass}`
-      );
-    }
+    if (
+      (start && date.isBefore(start, "day")) ||
+      (end && date.isAfter(end, "day"))
+    )
+      return false;
 
-    return pass;
+    if (!matches(accs, item.account)) return false;
+    if (!matches(inds, item.industry)) return false;
+    if (!matches(sts, item.state)) return false;
+    if (!matches(types, item.transaction_type)) return false;
+
+    return true;
   });
 
-  return result.sort((a, b) => (toMs(b.date) ?? 0) - (toMs(a.date) ?? 0));
+  return result.sort((a, b) => dayjs.utc(b.date).diff(dayjs.utc(a.date)));
 }

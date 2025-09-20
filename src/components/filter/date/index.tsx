@@ -125,8 +125,8 @@ export const SelectDate = () => {
   const onChange = (newDate: any) => {
     if (newDate["filter"]) {
       setDates({ filter: newDate["filter"] });
-      const startDate = dayjs(newDate["filter"].startDate).toISOString();
-      const endDate = dayjs(newDate["filter"].endDate).toISOString();
+      const startDate = dayjs(newDate["filter"].startDate).format('MM/DD/YYYY');
+      const endDate = dayjs(newDate["filter"].endDate).format('MM/DD/YYYY');
       router.push(`?start=${startDate}&end=${endDate}`);
     }
   };
