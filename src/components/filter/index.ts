@@ -1,4 +1,4 @@
-import { SelectDate } from "@/components/Filter/date";
-import { SelectFilter } from "@/components/Filter/selectFilter";
+import { SelectDate } from "@/components/filter/date";
+import { SelectFilter } from "@/components/filter/selectFilter";
 
 export { SelectDate, SelectFilter };

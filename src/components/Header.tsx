@@ -6,7 +6,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import dayjs from "dayjs";
 import { Button } from "@/ui/Button";
 import { useSearchParams, useRouter } from "next/navigation";
-import { SelectDate, SelectFilter } from "./Filter";
+import { SelectDate, SelectFilter } from "./filter";
 
 const HeaderContainer = styled.header`
   width: 100%;
