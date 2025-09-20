@@ -108,25 +108,13 @@ export const SelectDate = () => {
         dayjs(range.startDate).isSame(dayjs().startOf("year"), "day") &&
         dayjs(range.endDate).isSame(dayjs().endOf("year"), "day"),
     },
-    {
-      label: "Total Period",
-      range: () => {
-        return {
-          startDate: dayjs().toDate(),
-          endDate: dayjs().toDate(),
-        };
-      },
-      isSelected: (range) =>
-        dayjs(range.startDate).isSame(dayjs().startOf("year"), "day") &&
-        dayjs(range.endDate).isSame(dayjs().endOf("year"), "day"),
-    },
   ]);
 
   const onChange = (newDate: any) => {
     if (newDate["filter"]) {
       setDates({ filter: newDate["filter"] });
-      const startDate = dayjs(newDate["filter"].startDate).format('MM/DD/YYYY');
-      const endDate = dayjs(newDate["filter"].endDate).format('MM/DD/YYYY');
+      const startDate = dayjs(newDate["filter"].startDate).format("MM/DD/YYYY");
+      const endDate = dayjs(newDate["filter"].endDate).format("MM/DD/YYYY");
       router.push(`?start=${startDate}&end=${endDate}`);
     }
   };
