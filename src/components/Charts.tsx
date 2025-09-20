@@ -25,7 +25,7 @@ const ChartsWrapper = styled.div`
   width: 100%;
   margin-top: 0px;
   overflow-x: auto;
-  padding:  0px 10px;
+  padding: 0px 10px;
   p {
     font-weight: bold;
     margin-top: 20px;
@@ -120,7 +120,6 @@ function prepareChartDataOptimized(data: ITransaction[], targetPoints = 1000) {
       });
     }
   } else {
-    // Downsampling por bucket
     const minTs = deltas[0].ts;
     const maxTs = deltas[N - 1].ts;
     const range = Math.max(1, maxTs - minTs);

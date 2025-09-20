@@ -1,5 +1,8 @@
 import { ITransaction } from "@/types/transaction";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
 
 export function filterTransactions({
   data,
@@ -26,7 +29,7 @@ export function filterTransactions({
     const s = String(v).trim();
     if (/^\d{10}$/.test(s)) return Number(s) * 1000;
     if (/^\d{13}$/.test(s)) return Number(s);
-    const d = dayjs(s);
+    const d = dayjs.utc(s);
     return d.isValid() ? d.valueOf() : undefined;
   };
 
@@ -42,19 +45,19 @@ export function filterTransactions({
   const startRaw = toMs(startDate);
   const endRaw = toMs(endDate);
 
-  let startMs = startRaw ?? dayjs(minTs).startOf("day").valueOf();
-  let endMs = endRaw ?? dayjs(maxTs).endOf("day").valueOf();
+  let startMs = startRaw ?? dayjs.utc(minTs).startOf("day").valueOf();
+  let endMs = endRaw ?? dayjs.utc(maxTs).endOf("day").valueOf();
 
   if (startRaw !== undefined && endRaw !== undefined) {
     if (startRaw === endRaw) {
-      startMs = dayjs(startRaw).startOf("day").valueOf();
-      endMs = dayjs(endRaw).endOf("day").valueOf();
+      startMs = dayjs.utc(startRaw).startOf("day").valueOf();
+      endMs = dayjs.utc(endRaw).endOf("day").valueOf();
     } else {
-      const sDay = dayjs(startRaw).format("YYYY-MM-DD");
-      const eDay = dayjs(endRaw).format("YYYY-MM-DD");
+      const sDay = dayjs.utc(startRaw).format("YYYY-MM-DD");
+      const eDay = dayjs.utc(endRaw).format("YYYY-MM-DD");
       if (sDay === eDay) {
-        startMs = dayjs(startRaw).startOf("day").valueOf();
-        endMs = dayjs(endRaw).endOf("day").valueOf();
+        startMs = dayjs.utc(startRaw).startOf("day").valueOf();
+        endMs = dayjs.utc(endRaw).endOf("day").valueOf();
       }
     }
   }
