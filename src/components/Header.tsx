@@ -5,9 +5,8 @@ import { Tooltip } from "@/ui/Tooltip";
 import { useEffect, useState, useCallback, useRef } from "react";
 import dayjs from "dayjs";
 import { Button } from "@/ui/Button";
-import { SelectDate } from "./Filter/date";
-import { SelectFilter } from "./Filter/selectFilter";
 import { useSearchParams, useRouter } from "next/navigation";
+import { SelectDate, SelectFilter } from "./Filter";
 
 const HeaderContainer = styled.header`
   width: 100%;
@@ -201,10 +200,6 @@ export const Header = ({
       setLabelCalendar("This Year");
       return;
     }
-
-    // Total deposits and withdrawals per sector
-    // Total balance over time
-    // Net balance of each account
 
     const lastMonth = dayjs().subtract(1, "month");
     const isLastMonth =
