@@ -46,8 +46,8 @@ export function filterTransactions({
     );
   };
 
-  const start = startDate ? dayjs(startDate) : undefined;
-  const end = endDate ? dayjs(endDate) : undefined;
+  const start = startDate ? dayjs(startDate).format("MM/DD/YYYY") : undefined;
+  const end = endDate ? dayjs(endDate).format("MM/DD/YYYY") : undefined;
 
   const result = data.filter((item) => {
     const date = dayjs(item.date);
