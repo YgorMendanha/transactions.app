@@ -314,7 +314,7 @@ export const Header = ({
             <StateFilter options={filterOptions.state} />
             <TypeFilter options={filterOptions.transaction_type} />
             <Tooltip content={<SelectDate />}>
-              <Button variant="default">{labelCalendar}</Button>
+              <Button $variant="default">{labelCalendar}</Button>
             </Tooltip>
           </ControlGroup>
         </Controls>

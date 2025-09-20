@@ -30,16 +30,18 @@ export default function LoginCard() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
+  const initialValues = {
+    email: "ym@email.com",
+    password: "123456",
+    remember: true,
+  };
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>({
-    defaultValues: {
-      email: "",
-      password: "",
-      remember: true,
-    },
+    defaultValues: initialValues,
   });
 
   const authToken = Cookies.get("token");
@@ -132,7 +134,7 @@ export default function LoginCard() {
             </a>
           </Row>
 
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" $variant="secondary" disabled={loading}>
             {loading ? "Entrando..." : "Entrar"}
           </Button>
         </Form>

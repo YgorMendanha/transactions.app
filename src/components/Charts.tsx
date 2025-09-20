@@ -16,6 +16,16 @@ import styled, { useTheme } from "styled-components";
 import { useWindowSize } from "@/hooks/useWindowSize";
 
 const ChartsWrapper = styled.div`
+  width: 100%;
+  margin-top: 40px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  grid-column: 1 / -1;
+  width: 100%;
+  margin-top: 0px;
+  overflow-x: auto;
+  padding:  0px 10px;
   p {
     font-weight: bold;
     margin-top: 20px;
@@ -247,7 +257,7 @@ export const Charts = ({ data }: { data: ITransaction[] }) => {
             <ReBarChart
               layout="vertical"
               data={heatmapData}
-              margin={{ top: 20, right: 50, left: 120, bottom: 5 }}
+              margin={{ top: 20, right: 50, left: 50, bottom: 5 }}
             >
               <XAxis
                 type="number"

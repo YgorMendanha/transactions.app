@@ -2,16 +2,16 @@ import { ButtonHTMLAttributes } from "react";
 import { StyledButton, Variant } from "./styled";
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: Variant;
+  $variant?: Variant;
 };
 
 export const Button: React.FC<Props> = ({
   children,
-  variant = "primary",
+  $variant = "primary",
   ...rest
 }) => {
   return (
-    <StyledButton {...rest} variant={variant}>
+    <StyledButton {...rest} $variant={$variant}>
       {children}
     </StyledButton>
   );
