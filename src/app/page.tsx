@@ -79,27 +79,27 @@ export default function LoginCard() {
   return (
     <Page>
       <Card aria-live="polite">
-        <Brand>MinhaApp</Brand>
-        <Subtitle>Entre com sua conta para continuar</Subtitle>
+        <Brand>MyApp</Brand>
+        <Subtitle>Sign in to your account to continue</Subtitle>
 
         <Form onSubmit={handleSubmit(onSubmit)} noValidate>
           <div>
-            <Label htmlFor="email">E-mail ou usuário</Label>
+            <Label htmlFor="email">Email or Username</Label>
             <Input
               id="email"
               type="email"
-              placeholder="seu@exemplo.com"
+              placeholder="your@example.com"
               autoComplete="username"
               aria-invalid={!!errors.email}
               {...register("email", {
-                required: "Informe e-mail ou usuário",
+                required: "Please enter your email or username",
               })}
             />
             {errors.email && <ErrorText>{errors.email.message}</ErrorText>}
           </div>
 
           <div>
-            <Label htmlFor="password">Senha</Label>
+            <Label htmlFor="password">Password</Label>
             <Input
               id="password"
               type="password"
@@ -107,10 +107,10 @@ export default function LoginCard() {
               autoComplete="current-password"
               aria-invalid={!!errors.password}
               {...register("password", {
-                required: "Informe a senha",
+                required: "Please enter your password",
                 minLength: {
                   value: 6,
-                  message: "Senha deve ter ao menos 6 caracteres",
+                  message: "Password must be at least 6 characters long",
                 },
               })}
             />
@@ -122,7 +122,7 @@ export default function LoginCard() {
           <Row>
             <Remember>
               <input id="remember" type="checkbox" {...register("remember")} />
-              <label htmlFor="remember">Manter conectado</label>
+              <label htmlFor="remember">Keep me signed in</label>
             </Remember>
 
             <a
@@ -130,12 +130,12 @@ export default function LoginCard() {
               onClick={(ev) => ev.preventDefault()}
               style={{ fontSize: 13 }}
             >
-              Esqueceu a senha?
+              Forgot your password?
             </a>
           </Row>
 
           <Button type="submit" $variant="secondary" disabled={loading}>
-            {loading ? "Entrando..." : "Entrar"}
+            {loading ? "Signing in..." : "Sign in"}
           </Button>
         </Form>
       </Card>

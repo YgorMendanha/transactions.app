@@ -39,8 +39,25 @@ export function filterTransactions({
   const minTs = Math.min(...itemTs);
   const maxTs = Math.max(...itemTs);
 
-  const startMs = toMs(startDate) ?? dayjs(minTs).startOf("day").valueOf();
-  const endMs = toMs(endDate) ?? dayjs(maxTs).endOf("day").valueOf();
+  const startRaw = toMs(startDate);
+  const endRaw = toMs(endDate);
+
+  let startMs = startRaw ?? dayjs(minTs).startOf("day").valueOf();
+  let endMs = endRaw ?? dayjs(maxTs).endOf("day").valueOf();
+
+  if (startRaw !== undefined && endRaw !== undefined) {
+    if (startRaw === endRaw) {
+      startMs = dayjs(startRaw).startOf("day").valueOf();
+      endMs = dayjs(endRaw).endOf("day").valueOf();
+    } else {
+      const sDay = dayjs(startRaw).format("YYYY-MM-DD");
+      const eDay = dayjs(endRaw).format("YYYY-MM-DD");
+      if (sDay === eDay) {
+        startMs = dayjs(startRaw).startOf("day").valueOf();
+        endMs = dayjs(endRaw).endOf("day").valueOf();
+      }
+    }
+  }
 
   const normalize = (v?: string | string[] | undefined): string[] | null => {
     if (v === undefined || v === null) return null;

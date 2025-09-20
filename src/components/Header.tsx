@@ -247,7 +247,6 @@ export const Header = ({
     }
 
     if (start.isValid() && end.isValid()) {
-      // Formato inglês MM/DD
       setLabelCalendar(`${start.format("MM/DD")} - ${end.format("MM/DD")}`);
     } else {
       setLabelCalendar("Total Period");

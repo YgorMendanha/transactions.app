@@ -21,6 +21,13 @@ export const WrapperDate = styled.div`
   .rdrMonth {
     width: 100%;
   }
+  .rdrYearPicker,
+  .rdrMonthPicker {
+    option {
+      background: ${({ theme }) => theme.colors.background};
+      color: ${({ theme }) => theme.colors.text};
+    }
+  }
   @media (max-width: 600px) {
     width: 80vw;
   }

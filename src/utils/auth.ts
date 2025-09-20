@@ -11,8 +11,6 @@ export const AuthValidation = (token?: string) => {
     jwt.verify(token, SECRET_KEY);
     return true;
   } catch (err) {
-    console.error(err);
-
     return false;
   }
 };
