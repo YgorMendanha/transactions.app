@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   PageButton,
   PaginationInner,
@@ -48,6 +48,10 @@ export const TransactionsTable = ({
   }
 
   const pages = getPaginationPages(currentPage, totalPages);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [data]);
 
   return (
     <TableContainer>
